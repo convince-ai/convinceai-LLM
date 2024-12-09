@@ -3,7 +3,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 from groq import Groq
 from readTxt import load_and_split_document
 from emb import generate_embeddings
-from retrieveData import retrieve_relevant_section
+from retrieveData import retrieve_top_matches
 from redis import get_user_messages, update_user_messages
 import json
 import logging
@@ -26,11 +26,14 @@ MAX_MESSAGES = 20
 def chatbot_conversation(user_id, user_message):
     messages = get_user_messages(user_id, SYSTEM_PROMPT)
 
-    retrieved_info = retrieve_relevant_section(user_message, sections, embeddings)
-    if retrieved_info:
-        messages.append({"role": "system", "content": f"Informações adicionais: {retrieved_info}"})
-
-    messages.append({"role": "user", "content": user_message})
+    top_matches = retrieve_top_matches(user_message, sections, embeddings, top_n=2)
+    
+    if top_matches:
+        retrieved_info = "\n\n".join(
+            [f"Informação relevante {i+1}: {section}\nSimilaridade: {similarity:.4f}" 
+             for i, (section, similarity) in enumerate(top_matches)]
+        )
+        messages.append({"role": "system", "content": f"Informações adicionais:\n{retrieved_info}"})
 
     messages = messages[-MAX_MESSAGES:]
 
