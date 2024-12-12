@@ -4,7 +4,7 @@ from groq import Groq
 from readTxt import load_and_split_document
 from emb import generate_embeddings
 from retrieveData import retrieve_top_matches
-from redis import get_user_messages, update_user_messages
+from databaseUpdate import get_user_messages_from_db, update_user_messages_in_db
 import json
 import logging
 client = Groq(api_key="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")
@@ -24,8 +24,7 @@ SYSTEM_PROMPT = (
 MAX_MESSAGES = 20  
 
 def chatbot_conversation(user_id, user_message):
-    messages = get_user_messages(user_id, SYSTEM_PROMPT)
-
+    messages = get_user_messages_from_db(user_id, MAX_MESSAGES)
     top_matches = retrieve_top_matches(user_message, sections, embeddings, top_n=2)
     
     if top_matches:
@@ -56,13 +55,15 @@ def chatbot_conversation(user_id, user_message):
 
     messages.append({"role": "assistant", "content": bot_response})
 
-    update_user_messages(user_id, messages[-MAX_MESSAGES:])
+    update_user_messages_in_db(user_id, user_message, bot_response)
 
     logging.info(f"Resposta para {user_id}: {bot_response}")
 
     return bot_response
 
-@router.post("/webhook")
+
+#API FICA DAQUI PRA BAIXO (MINEIRO OLHA PF)
+'''@router.post("/webhook")
 async def whatsapp_webhook(
     From: str = Form(...),
     Body: str = Form(...)
@@ -82,3 +83,4 @@ async def whatsapp_webhook(
     resp.message(response_text)
     logging.info(f"Enviado resposta para {from_number}: {response_text}")
     return str(resp)
+'''
