@@ -1,5 +1,5 @@
 def load_and_split_document(file_path):
-    with open(r'convinceai-LLM\products.txt', "r", encoding="utf-8") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         document_text = file.read()
     sections = document_text.split("\n\n")
     return sections

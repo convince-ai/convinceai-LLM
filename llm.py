@@ -2,7 +2,7 @@ from groq import Groq
 from readTxt import load_and_split_document
 from emb import generate_embeddings
 from retrieveData import retrieve_relevant_section
-
+from sendToDb import sendData
 client = Groq(api_key="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")
 
 messages = [
@@ -43,6 +43,7 @@ def receive_user_input():
     while True:
         user_message = input("Usuário: ")
         chatbot_conversation(user_message, sections, embeddings)
+        sendData(user_message,sections, embeddings )
 
 if __name__ == "__main__":
     receive_user_input()
