@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  gabriel-zap:
+    image: enzo0001/gabriel-zap:prod
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.gabriel-zap.rule=Host(`zap.nexttech.site`)"
+        - "traefik.http.routers.gabriel-zap.entrypoints=websecure"
+        - "traefik.http.routers.gabriel-zap.tls=true"
+        - "traefik.http.routers.gabriel-zap.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.gabriel-zap.loadbalancer.server.port=8000"
+    networks:
+      - network_public
+    expose:
+      - "8000"
+
+networks:
+  network_public:
+    external: true
+    name: network_public

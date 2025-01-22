@@ -1,0 +1,52 @@
+    "produto": "Fundamentos da Programação em Python",
+    "descrição": "Curso introdutório de Python voltado para o mercado financeiro, ensinando desde o básico até estruturas de dados, loops, funções e exemplos práticos.",
+    "público": "Iniciantes ou profissionais que desejam aprender Python para o mercado financeiro."
+
+    "produto": "Python para Mercado Financeiro - PMF 2.0",
+    "descrição": "Imersão completa com mais de 150 horas de conteúdo, cobrindo tópicos como análise de dados financeiros, algoritmos de trading, machine learning, automação de processos e dashboards interativos.",
+    "público": "Profissionais e estudantes interessados em programação e ciência de dados aplicados ao mercado financeiro."
+
+    "produto": "DataLab com participação especial Genial Investimentos",
+    "descrição": "Workshop com programação prática em Python e estudos de caso no mercado financeiro, incluindo atividades e dicas para construção de portfólio.",
+    "público": "Profissionais e estudantes que desejam entender o dia a dia do mercado financeiro e melhorar suas chances de contratação."
+
+    "produto": "Construa seu portfólio de carreira",
+    "descrição": "Acesso a estudos de caso práticos, otimização de perfis no LinkedIn e GitHub para criar um portfólio de impacto.",
+    "preço": "R$ 59,00",
+    "público": "Profissionais buscando melhorar suas chances de contratação com um portfólio atraente."
+
+    "produto": "Gestão de Portfólio com Python",
+    "descrição": "Workshop ao vivo cobrindo análise de desempenho, gestão de risco, backtesting, rebalanceamento e otimização de portfólios.",
+    "público": "Investidores e profissionais interessados em aprofundar conhecimentos em gestão de portfólio com Python."
+
+    "produto": "DataLab VIP 2.0",
+    "descrição": "Workshop online com aulas ao vivo, 12 estudos de caso no mercado financeiro e materiais complementares em PDF.",
+    "público": "Estudantes e profissionais interessados em programação e análise de dados financeiros."
+
+    "produto": "Investidor Programado VIP",
+    "descrição": "Acesso a gravações do evento e bônus, incluindo e-books de machine learning e programação para gestão de ativos.",
+    "público": "Investidores interessados em aprendizado técnico e estratégias de programação no mercado financeiro."
+
+    "produto": "Programação para Asset Management",
+    "descrição": "Curso de programação aplicada à gestão de ativos, abordando automação de estratégias e análise de dados financeiros.",
+    "público": "Gestores de ativos, economistas e profissionais que desejam utilizar programação para otimizar processos financeiros."
+
+    "produto": "Introdução ao Python para Análise de Dados Financeiros",
+    "descrição": "E-book com conceitos de macroeconomia e tutoriais de programação em Python para análise e visualização de dados financeiros.",
+    "público": "Iniciantes que desejam aprender Python e conceitos econômicos de forma integrada."
+  
+    "produto": "Python para Renda Variável",
+    "descrição": "Curso sobre como usar Python para análise técnica e fundamentalista, com foco na tomada de decisão em investimentos.",
+    "público": "Investidores interessados em aprimorar suas decisões financeiras com programação em Python."
+  
+    "produto": "Python for Investments",
+    "descrição": "Curso completo para aprender a usar Python em análise e otimização de portfólios de investimento.",
+    "público": "Investidores iniciantes ou profissionais interessados em programação aplicada ao mercado financeiro."
+  
+    "produto": "Introduction to Quantitative Finance",
+    "descrição": "E-book introdutório que explora conceitos de finanças quantitativas e aplicações práticas para tomada de decisão financeira.",
+    "público": "Iniciantes e entusiastas de finanças que desejam entender o impacto de dados quantitativos."
+
+    "produto": "R - Introdução para o Mercado Financeiro",
+    "descrição": "Treinamento prático em R com aplicação no mercado financeiro, incluindo gráficos, regressões e análise estatística.",
+    "público": "Estudantes e profissionais que desejam aprender R para análises financeiras."
