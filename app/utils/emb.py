@@ -6,7 +6,3 @@ def generate_embeddings(sections):
     embeddings = vectorizer.fit_transform(sections)
     return vectorizer, embeddings
 
-if __name__ == "__main__":
-    sections = load_and_split_document("products.txt")
-    vectorizer, embeddings = generate_embeddings(sections)
-    print("Embeddings done.")

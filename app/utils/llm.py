@@ -1,57 +1,55 @@
-from fastapi import APIRouter
 from groq import Groq
-from .readTxt import load_and_split_document
-from .emb import generate_embeddings
-from .retrieveData import retrieve_top_matches
-import logging
+from readTxt import load_and_split_from_db
+from emb import generate_embeddings
+from retrieveData import retrieve_relevant_section
+from sendToDb import sendData
+from dotenv import load_dotenv
+import os
+load_dotenv()
+DATABASE_URL = os.getenv("DATABASE_URL")
+GROQ_KEY = os.getenv("GROQ_KEY")
+client = Groq(api_key=GROQ_KEY)
+sections = load_and_split_from_db()
+embeddings = generate_embeddings(sections)
 
-client = Groq(api_key="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")
+messages = [
+    {
+        "role": "system",
+        "content": (
+            "Você é um vendedor especializado em nossos produtos. "
+            "Seu objetivo é responder diretamente às perguntas do cliente, sempre com base nas informações adicionais disponíveis. "
+            "Consulte as informações adicionais fornecidas antes de responder. "
+            "Se as informações adicionais não forem suficientes para responder ou se a pergunta não estiver clara, peça mais detalhes ao cliente ou sugira verificar o site oficial para confirmar. "
+            "NUNCA invente informações que não constem nas informações adicionais."
+        )
+    }
+]
 
-sections = load_and_split_document("app/utils/products.txt")
-vectorizer_and_embeddings = generate_embeddings(sections)
-
-# Prompt do sistema
-SYSTEM_PROMPT = (
-    "Você é um vendedor serio especializado em nossos produtos. "
-    "Se o cliente perguntar sobre algo que nao tem na loja, simplesmente responda "
-    "Se receber somente o nome do produto responda com um mensagem para vender o produto. "
-    "'Nao encontrei exatamente, pode ser mais especifico?'. Nao de informacao de nada que nao tenha a ver "
-    "com a pergunta do usuario. Se o cliente perguntar de algo que nao esta nas informacoes adicionais, "
-    "diga que nao tem certeza, para confirmar no site oficial."
-)
-
-MAX_MESSAGES = 20  
-
-def chatbot_conversation(user_id, user_message):
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    top_matches = retrieve_top_matches(user_message, sections, vectorizer_and_embeddings, top_n=2)
+def chatbot_conversation(number, user_message):
+    sendData(user_message, number)
+    retrieved_info = retrieve_relevant_section(user_message, sections, embeddings)
     
-    if top_matches:
-        retrieved_info = "\n\n".join(
-            [f"Informação relevante {i+1}: {section}\nSimilaridade: {similarity:.4f}" 
-             for i, (section, similarity) in enumerate(top_matches)]
-        )
-        messages.append({"role": "system", "content": f"Informações adicionais:\n{retrieved_info}"})
-
+    if retrieved_info:
+        messages.append({"role": "system", "content": f"Informações adicionais: {retrieved_info}"})
+    print(retrieved_info)
     messages.append({"role": "user", "content": user_message})
+    
+    completion = client.chat.completions.create(
+        model="llama3-70b-8192", #aqui é possível mudar o modelo a qualquer momento ( como um adapter)
+        messages=messages,
+        temperature=1,
+        max_tokens=1024,
+        top_p=1,
+        stream=True,
+        stop=None,
+    )
 
-    try:
-        completion = client.chat.completions.create(
-            model="llama3-70b-8192",
-            messages=messages,
-            temperature=1,
-            max_tokens=1024,
-            top_p=1,
-            stream=False,  
-            stop=None,
-        )
+    bot_response = ""
+    for chunk in completion:
+        content = chunk.choices[0].delta.content or ""
+        print(content, end="")
+        bot_response += content
 
-        bot_response = completion.choices[0].message.content
-
-    except Exception as e:
-        logging.error(f"Erro na comunicação com a API Groq: {e}")
-        bot_response = "Desculpe, estou enfrentando dificuldades no momento. Por favor, tente novamente mais tarde."
-
-    logging.info(f"Resposta para {user_id}: {bot_response}")
-
+    messages.append({"role": "assistant", "content": bot_response})
+    print("\n")
     return bot_response
