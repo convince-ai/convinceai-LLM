@@ -21,17 +21,33 @@ async def consume_from_queue():
         channel = await connection.channel()  # Cria um canal
         queue = await channel.declare_queue(QUEUE_NAME, durable=True)  # Declara a fila
 
-        async for message in queue:  # Consome mensagens da fila
-            async with message.process():
+        # PEGA VARIAS MENSAGENS DA FILA
+        # async for message in queue:  # Consome mensagens da fila
+        #     async with message.process():
+        #         payload = message.body.decode()  # Decodifica a mensagem da fila
+        #         print(f"Mensagem recebida da fila: {payload}")
+        #         try:
+        #             # Converte o payload da fila para um JSON e o passa para o webhook
+        #             request = MockRequest(json.loads(payload))
+        #             response = await webhook(request)
+        #             print(f"Resposta do webhook: {response}")
+        #         except Exception as e:
+        #             print(f"Erro ao processar mensagem da fila: {e}")
+
+         # Obtém uma única mensagem
+        message = await queue.get(no_ack=False)  # Pega uma mensagem da fila (com reconhecimento manual)
+
+        if message:
+            try:
                 payload = message.body.decode()  # Decodifica a mensagem da fila
                 print(f"Mensagem recebida da fila: {payload}")
-                try:
-                    # Converte o payload da fila para um JSON e o passa para o webhook
-                    request = MockRequest(json.loads(payload))
-                    response = await webhook(request)
-                    print(f"Resposta do webhook: {response}")
-                except Exception as e:
-                    print(f"Erro ao processar mensagem da fila: {e}")
+                request = MockRequest(json.loads(payload))
+                response = await webhook(request)
+                print(f"Resposta do webhook: {response}")
+                await message.ack()  # Reconhece a mensagem como processada
+            except Exception as e:
+                print(f"Erro ao processar mensagem da fila: {e}")
+                await message.nack(requeue=True)  # Reenvia a mensagem para a fila em caso de erro
 
 
 class MockRequest:
@@ -71,11 +87,22 @@ async def webhook(request: Request):
         payload = await request.json()
         
         # Extrai os dados necessários
-        sender = payload.get("phone")
-        product = payload.get("product")
 
-        print(sender)
-        print(product)
+        event = payload.get("event", {})
+
+        # Dentro de "event", acesse os dados do comprador
+        buyer = event.get("buyer", {})
+        sender = buyer.get("phone")
+
+        productDados = event.get("product", {})
+
+        # Obtenha apenas o ID do produto
+        product = productDados.get("id")
+        
+
+        print('telefone',sender)
+        print('produto',product)
+
         
         if not sender or not product:
             return {"error": "Sender e product são obrigatórios"}
