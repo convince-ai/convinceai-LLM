@@ -22,33 +22,17 @@ async def consume_from_queue():
         queue = await channel.declare_queue(QUEUE_NAME, durable=True)  # Declara a fila
 
         # PEGA VARIAS MENSAGENS DA FILA
-        # async for message in queue:  # Consome mensagens da fila
-        #     async with message.process():
-        #         payload = message.body.decode()  # Decodifica a mensagem da fila
-        #         print(f"Mensagem recebida da fila: {payload}")
-        #         try:
-        #             # Converte o payload da fila para um JSON e o passa para o webhook
-        #             request = MockRequest(json.loads(payload))
-        #             response = await webhook(request)
-        #             print(f"Resposta do webhook: {response}")
-        #         except Exception as e:
-        #             print(f"Erro ao processar mensagem da fila: {e}")
-
-         # Obtém uma única mensagem
-        message = await queue.get(no_ack=False)  # Pega uma mensagem da fila (com reconhecimento manual)
-
-        if message:
-            try:
+        async for message in queue:  # Consome mensagens da fila
+            async with message.process():
                 payload = message.body.decode()  # Decodifica a mensagem da fila
                 print(f"Mensagem recebida da fila: {payload}")
-                request = MockRequest(json.loads(payload))
-                response = await webhook(request)
-                print(f"Resposta do webhook: {response}")
-                await message.ack()  # Reconhece a mensagem como processada
-            except Exception as e:
-                print(f"Erro ao processar mensagem da fila: {e}")
-                await message.nack(requeue=True)  # Reenvia a mensagem para a fila em caso de erro
-
+                try:
+                    # Converte o payload da fila para um JSON e o passa para o webhook
+                    request = MockRequest(json.loads(payload))
+                    response = await webhook(request)
+                    print(f"Resposta do webhook: {response}")
+                except Exception as e:
+                    print(f"Erro ao processar mensagem da fila: {e}")
 
 class MockRequest:
     """
