@@ -97,12 +97,7 @@ async def webhook(request: Request):
         productDados = event.get("product", {})
 
         # Obtenha apenas o ID do produto
-        product = productDados.get("id")
-        
-
-        print('telefone',sender)
-        print('produto',product)
-
+        product = productDados.get("name")
         
         if not sender or not product:
             return {"error": "Sender e product são obrigatórios"}
