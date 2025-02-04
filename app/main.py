@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request
 from app.services.whatsapp_service import send_whatsapp_message
 from app.dependencies.config import get_api_config
 from app.utils.llm import chatbot_conversation
+from app.utils.sendToDb import sendData
+
 import uvicorn
 
 app = FastAPI(
@@ -29,7 +31,7 @@ async def webhook(request: Request):
             
         # Processa a mensagem usando o RAG e Grok
         response = chatbot_conversation(sender, product)
-        
+        sendData(product,sender)
         # Obtém as configurações da API do WhatsApp
         config = get_api_config()
         

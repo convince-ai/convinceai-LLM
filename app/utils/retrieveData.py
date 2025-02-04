@@ -1,27 +1,12 @@
-from sklearn.metrics.pairwise import cosine_similarity
-from .emb import generate_embeddings
-from .readTxt import load_and_split_document
+from scipy.spatial.distance import cosine
+from sentence_transformers import SentenceTransformer
 
-def retrieve_top_matches(user_message, sections, vectorizer_and_embeddings, top_n=2):
-    vectorizer, embeddings = vectorizer_and_embeddings
-    user_vector = vectorizer.transform([user_message])
-    
-    # Calcular similaridade entre a mensagem do usuário e todas as seções
-    similarities = cosine_similarity(user_vector, embeddings).flatten()
-    
-    # Pegar os top_n índices com maior similaridade
-    top_indices = similarities.argsort()[-top_n:][::-1]
-    top_matches = [(sections[i], similarities[i]) for i in top_indices]
-    return top_matches
-
-if __name__ == "__main__":
-    sections = load_and_split_document("products.txt")
-    vectorizer_and_embeddings = generate_embeddings(sections)
-    user_message = "Tem curso de python?"
-    top_matches = retrieve_top_matches(user_message, sections, vectorizer_and_embeddings, top_n=2)
-    
-    print("Melhores seções relevantes encontradas:")
-    for i, (section, similarity) in enumerate(top_matches, 1):
-        print(f"\nMatch {i}:")
-        print(f"Seção: {section}")
-        print(f"Similaridade: {similarity:.4f}")
+def retrieve_relevant_section(user_message, sections, embeddings):
+    embedding_model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
+    user_embedding = embedding_model.encode(user_message)  
+    similarities = [1 - cosine(user_embedding, section_embedding) for section_embedding in embeddings]
+    best_match_index = similarities.index(max(similarities))
+    if similarities[best_match_index] >= 0.6:
+        return sections[best_match_index]
+    else:
+        return "Sem informacoes adicionais"
