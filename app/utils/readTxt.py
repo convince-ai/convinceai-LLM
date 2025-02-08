@@ -1,25 +1,46 @@
-import psycopg2
+from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
+MONGO_URI = os.getenv("DATABASE_URL_LEO")
+
 def load_and_split_from_db():
     try:
-        conn = psycopg2.connect(DATABASE_URL)
-        cursor = conn.cursor()
+        client = MongoClient(MONGO_URI)
+        db = client["events"]  
+        collection = db["products"] 
 
-        cursor.execute("SELECT * FROM tProducts;")  
-        rows = cursor.fetchall()
+        documents = list(collection.find())  
 
-        document_text = "\n\n".join([f"{row[1]} - {row[2]}" for row in rows])
-        sections = document_text.split("\n\n")
+        if not documents:
+            print("A coleção está vazia.")
+            return []
+
+        document_text = "\n\n".join([
+            f"Nome: {doc.get('name', 'N/A')}\n"
+            f"ID do Produto: {doc.get('productId', 'N/A')}\n"
+            f"Preço: {doc.get('price', 'N/A')}\n"
+            f"Descrição: {doc.get('description', 'N/A')}\n"
+            f"Tenant ID: {doc.get('tenantid', 'N/A')}\n"
+            f"Branch ID: {doc.get('branchid', 'N/A')}\n"
+            f"Criado em: {doc.get('createdAt', 'N/A')}\n"
+            f"Atualizado em: {doc.get('updatedAt', 'N/A')}"
+            for doc in documents
+        ])
+
+        sections = document_text.split("\n\n")  
         return sections
-
+    
     except Exception as e:
         print(f"Erro ao carregar dados do banco: {e}")
         return []
-
+    
     finally:
-        if conn:
-            conn.close()
+        client.close()
 
+if __name__ == '__main__':
+    sections = load_and_split_from_db()
+    for section in sections:
+        print(section)
+        print("=" * 50)  
