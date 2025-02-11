@@ -1,37 +1,32 @@
-from fastapi import APIRouter
 from groq import Groq
-from .readTxt import load_and_split_document
-from .emb import generate_embeddings
-from .retrieveData import retrieve_top_matches
+from readTxt import load_and_split_from_db
+from emb import generate_embeddings
+from retrieveData import retrieve_relevant_section
 import logging
+from sendToDb import sendData
+
 
 client = Groq(api_key="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")
 
-sections = load_and_split_document("app/utils/products.txt")
+sections = load_and_split_from_db()
 vectorizer_and_embeddings = generate_embeddings(sections)
 
 # Prompt do sistema
 SYSTEM_PROMPT = (
-    "Você é um vendedor serio especializado em nossos produtos. "
-    "Se o cliente perguntar sobre algo que nao tem na loja, simplesmente responda "
-    "Se receber somente o nome do produto responda com um mensagem para vender o produto. "
-    "'Nao encontrei exatamente, pode ser mais especifico?'. Nao de informacao de nada que nao tenha a ver "
-    "com a pergunta do usuario. Se o cliente perguntar de algo que nao esta nas informacoes adicionais, "
-    "diga que nao tem certeza, para confirmar no site oficial."
-)
+  "Você é um vendedor especializado nos produtos disponíveis em nossa loja. "
+    "Se o cliente perguntar sobre algo que tenha informações disponíveis, responda fornecendo os detalhes do produto. "
+    "Se não houver informações suficientes, responda com: 'Não encontrei exatamente, pode ser mais específico?'. "
+    "Nunca invente informações e nunca mencione produtos que não estejam na base de dados. ")
 
 MAX_MESSAGES = 20  
 
 def chatbot_conversation(user_id, user_message):
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    top_matches = retrieve_top_matches(user_message, sections, vectorizer_and_embeddings, top_n=2)
     
-    if top_matches:
-        retrieved_info = "\n\n".join(
-            [f"Informação relevante {i+1}: {section}\nSimilaridade: {similarity:.4f}" 
-             for i, (section, similarity) in enumerate(top_matches)]
-        )
-        messages.append({"role": "system", "content": f"Informações adicionais:\n{retrieved_info}"})
+    retrieved_info = retrieve_relevant_section(user_message, sections, vectorizer_and_embeddings)
+    print(retrieved_info)
+    if retrieved_info:
+        messages.append({"role": "system", "content": f"Informações adicionais: {retrieved_info}"})
 
     messages.append({"role": "user", "content": user_message})
 
@@ -55,3 +50,15 @@ def chatbot_conversation(user_id, user_message):
     logging.info(f"Resposta para {user_id}: {bot_response}")
 
     return bot_response
+
+if __name__ == "__main__":
+    
+    user_id = "3597537147"
+    while True:
+        user_message = input("Você: ")
+        if user_message.lower() in ["sair", "exit", "quit"]:
+            print("Encerrando o chatbot.")
+            break
+        response = chatbot_conversation(user_id, user_message)
+        #sendData(user_message,user_id)
+        print(f"Chatbot: {response}")

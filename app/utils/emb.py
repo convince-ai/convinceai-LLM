@@ -1,8 +1,5 @@
-from sklearn.feature_extraction.text import TfidfVectorizer
-from .readTxt import load_and_split_document
-
+from sentence_transformers import SentenceTransformer
 def generate_embeddings(sections):
-    vectorizer = TfidfVectorizer()
-    embeddings = vectorizer.fit_transform(sections)
-    return vectorizer, embeddings
-
+    embedding_model = SentenceTransformer('paraphrase-MiniLM-L6-v2')  # Modelo de embeddings
+    embeddings = [embedding_model.encode(section) for section in sections]
+    return embeddings

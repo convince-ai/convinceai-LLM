@@ -7,11 +7,11 @@ import psycopg2
 from dotenv import load_dotenv
 import os
 load_dotenv()
-DATABASE_URL = os.getenv("DATABASE_URL")
-GROQ_KEY = os.getenv("GROQ_KEY")
+DATABASE_URL = "postgresql://postgres:xbWgboNUGCJJOjgfnHmDZnCcdJBavZFM@monorail.proxy.rlwy.net:30453/railway"
+GROQ_KEY = "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"
 client = Groq(api_key=GROQ_KEY)
 messages = [
-    {"role": "system", "content": "Voce é um classificador autómatico de dúvida. Classifique se for uma dúvida ou não. Se NÃO FOR, responda 'Nao' para QUALQUER coisa que voce receber. Se for, quero que voce retorne SEMPRE NESSE EXATO FORMATO ( isso é importante ): Produto: 'nome ESPECIFICO do produto (se tiver mais de um coloca o primeiro)', Duvida:'duvida explicada com os detalhes da duvida. não faça muito longo'. Não responda absolutamente NADA diferente do que te instrui. Eu vou te mandar umas informações adicionais para ajudar a entender o nome do PRODUTO que voce deve colocar. Se não tiver alguma informacao adicional, responda que nao eh uma duvida."}
+    {"role": "system", "content": "Voce é um classificador autómatico de dúvida. Classifique se for uma dúvida ou não. Se NÃO FOR, responda 'Nao' para QUALQUER coisa que voce receber. Se for, quero que voce retorne SEMPRE NESSE EXATO FORMATO ( isso é importante ): Produto: 'nome ESPECIFICO do produto (se tiver mais de um coloca o primeiro)', Duvida:'duvida descrita pelo usuario(Exemplo: a duvida foi sobre o preco)'. Não responda absolutamente NADA diferente do que te instrui. Eu vou te mandar umas informações adicionais para ajudar a entender o nome do PRODUTO que voce deve colocar. Se não tiver alguma informacao adicional, responda que nao eh uma duvida."}
 ]
 
 # Função principal
